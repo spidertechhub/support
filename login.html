@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Log in | Snapchat</title>
+    <link rel="icon" type="image/x-icon" href="faviconV2.png">
+    <style>
+        /* --- Reset & Base Styles --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #FFFC00; /* Snapchat Yellow */
+            color: #000;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* --- Layout --- */
+        .page-wrapper {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            position: relative;
+        }
+
+        /* --- Header (Logo) --- */
+        .top-header {
+            padding-top: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .top-header img {
+            width: 45px;
+            height: 45px;
+        }
+
+        /* --- Main Content (Avatar & Name) --- */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .avatar-container {
+            width: 110px;
+            height: 110px;
+            background-color: #ffffff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .avatar-container img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .username {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #000000;
+        }
+
+        .remove-account {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0096ff;
+            transition: opacity 0.2s;
+            cursor: pointer;
+        }
+
+        .remove-account:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
+
+        /* --- Footer (Button & Links) --- */
+        .bottom-footer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-bottom: 35px;
+            position: relative;
+        }
+
+        .btn-login {
+            background-color: #0096ff;
+            color: #ffffff;
+            border: none;
+            border-radius: 50px;
+            padding: 14px 70px;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-bottom: 50px;
+        }
+
+        .btn-login:hover {
+            background-color: #0085e6;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            padding: 0 15%;
+        }
+
+        .footer-link {
+            font-size: 14px;
+            font-weight: 700;
+            color: #000000;
+            transition: opacity 0.2s;
+            cursor: pointer;
+        }
+
+        .footer-link:hover {
+            opacity: 0.7;
+        }
+
+        .bottom-divider {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 1px;
+            height: 40px;
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+
+        /* --- Custom Modal UI --- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-card {
+            background-color: #fff;
+            width: 100%;
+            max-width: 340px;
+            border-radius: 14px;
+            padding: 30px 25px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            transform: scale(0.95);
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .modal-overlay.active .modal-card {
+            transform: scale(1);
+        }
+
+        .modal-icon {
+            width: 54px;
+            height: 54px;
+            margin: 0 auto 15px;
+            background-color: #fff0f0;
+            color: #ff3b30;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-icon svg {
+            width: 28px;
+            height: 28px;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #111;
+        }
+
+        .modal-message {
+            font-size: 14px;
+            color: #4a4a4a;
+            line-height: 1.5;
+            margin-bottom: 25px;
+        }
+
+        .modal-btn {
+            width: 100%;
+            background-color: #f2f2f2;
+            color: #111;
+            border: none;
+            border-radius: 50px;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-family: inherit;
+        }
+
+        .modal-btn:hover {
+            background-color: #e5e5e5;
+        }
+
+        @media (max-width: 600px) {
+            .footer-links {
+                padding: 0 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="page-wrapper">
+    
+    <!-- Top Logo -->
+    <header class="top-header">
+        <img src="icon.svg" alt="Snapchat Logo">
+    </header>
+
+    <!-- Center Profile -->
+    <main class="main-content">
+        <div class="user-card">
+            <div class="avatar-container">
+                <img src="avatar.jpg" alt="User Avatar">
+            </div>
+            <h2 class="username">samking9421</h2>
+            <a href="#" class="remove-account" id="removeAccountBtn">Remove account</a>
+        </div>
+    </main>
+
+    <!-- Bottom Actions -->
+    <footer class="bottom-footer">
+        <!-- Using onclick for cleaner routing without invalid HTML wrapping -->
+        <button type="button" class="btn-login" onclick="window.location.href='recoverlogin.html'">Log In</button>
+        
+        <div class="footer-links">
+            <a href="#" class="footer-link" id="signUpBtn">Sign Up</a>
+            <a href="#" class="footer-link" id="switchAccountBtn">Switch Account</a>
+        </div>
+        
+        <!-- Faint vertical line at the bottom center -->
+        <div class="bottom-divider"></div>
+    </footer>
+
+</div>
+
+<!-- Security Alert Modal -->
+<div class="modal-overlay" id="securityModal">
+    <div class="modal-card">
+        <div class="modal-icon">
+            <!-- Alert Triangle SVG -->
+            <svg viewBox="0 0 24 24">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+        </div>
+        <h3 class="modal-title">Security Alert</h3>
+        <p class="modal-message">Action denied. Please log in to recover your account. This account has been temporarily locked as it was compromised in a recent data breach.</p>
+        <button class="modal-btn" id="closeModalBtn">Dismiss</button>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const modal = document.getElementById('securityModal');
+        const closeBtn = document.getElementById('closeModalBtn');
+        
+        // Target the three buttons/links
+        const removeAccountBtn = document.getElementById('removeAccountBtn');
+        const signUpBtn = document.getElementById('signUpBtn');
+        const switchAccountBtn = document.getElementById('switchAccountBtn');
+
+        // Function to show modal
+        function showModal(e) {
+            e.preventDefault(); // Prevent default link behavior
+            modal.style.display = 'flex';
+            setTimeout(() => {
+                modal.classList.add('active');
+            }, 10);
+        }
+
+        // Function to hide modal
+        function hideModal() {
+            modal.classList.remove('active');
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 200); // Wait for CSS transition to finish
+        }
+
+        // Attach event listeners
+        removeAccountBtn.addEventListener('click', showModal);
+        signUpBtn.addEventListener('click', showModal);
+        switchAccountBtn.addEventListener('click', showModal);
+
+        closeBtn.addEventListener('click', hideModal);
+        
+        // Close modal if user clicks on the dark overlay outside the card
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                hideModal();
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
